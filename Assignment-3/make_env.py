@@ -23,7 +23,7 @@ def add_indicators(data, window_sma=10, window_ema=10, window_volume=WINDOW_VOLU
 class PortfolioEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, df, initial_balance=1e6, max_steps=200, num_stocks=10, num_features=4):
+    def __init__(self, df, initial_balance=1e6, max_steps=300, num_stocks=10, num_features=4):
         super(PortfolioEnv, self).__init__()
         self.df = df  
         self.initial_balance = initial_balance
@@ -77,7 +77,7 @@ class PortfolioEnv(gym.Env):
                 self.shares_held[stock_index] -= 1
 
         self.current_step += self.num_stocks
-        done = self.current_step >= self.max_steps
+        done = (self.current_step >= self.max_steps)
 
         # Update portfolio value
         next_row = self.df.iloc[self.current_step: self.current_step+self.num_stocks, :]
