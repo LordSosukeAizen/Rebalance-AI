@@ -27,10 +27,11 @@ class PortfolioEnv(gym.Env):
         super(PortfolioEnv, self).__init__()
         self.df = df  
         self.initial_balance = initial_balance
-        self.max_steps = max_steps
+        self.initial_step = WINDOW_VOLUME
+        self.max_steps = max_steps + self.initial_step - WINDOW_VOLUME
+        self.num_steps = max_steps
         self.num_stocks = num_stocks
         self.num_features = num_features 
-
         self.action_space = gym.spaces.MultiDiscrete([3] * self.num_stocks)  # 0: hold, 1: buy, 2: sell
 
         # [balance] + [stock prices] + [technical features] + [stock holdings]
@@ -39,11 +40,14 @@ class PortfolioEnv(gym.Env):
 
         self.reset()
 
-    def reset(self):
+    def reset(self, initial_step=None):
         self.balance = self.initial_balance
         self.portfolio_value = self.initial_balance
         self.shares_held = [0] * self.num_stocks
-        self.current_step = WINDOW_VOLUME
+        self.current_step = self.initial_step
+        if initial_step is None: 
+            initial_step = self.initial_step
+        self.max_steps = self.num_steps  + initial_step - WINDOW_VOLUME
         return self.curr_obs()
 
     def curr_obs(self):
@@ -77,7 +81,7 @@ class PortfolioEnv(gym.Env):
                 self.shares_held[stock_index] -= 1
 
         self.current_step += self.num_stocks
-        done = (self.current_step >= self.max_steps)
+        done = (self.current_step > self.max_steps)
 
         # Update portfolio value
         next_row = self.df.iloc[self.current_step: self.current_step+self.num_stocks, :]
@@ -116,12 +120,12 @@ data = add_indicators(data)
 portfolio_env = PortfolioEnv(data)
 
 
-print("\n\n")
-NUMBER_OF_SIMULATIONS = 10
-for _ in range(NUMBER_OF_SIMULATIONS):
-    random_actions = np.random.randint(0, 3, size=10)
-    _, reward, _, _, _ = portfolio_env.step(random_actions)
-    print("Reward: ", reward)
-    portfolio_env.render()
-    print("\n\n\n\n")
-    time.sleep(3)
+# print("\n\n")
+# NUMBER_OF_SIMULATIONS = 10
+# for _ in range(NUMBER_OF_SIMULATIONS):
+#     random_actions = np.random.randint(0, 3, size=10)
+#     _, reward, _, _, _ = portfolio_env.step(random_actions)
+#     print("Reward: ", reward)
+#     portfolio_env.render()
+#     print("\n\n\n\n")
+#     time.sleep(3)

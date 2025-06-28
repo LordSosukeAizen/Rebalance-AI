@@ -4,7 +4,6 @@ from tqdm import tqdm
 from tensorflow.keras import layers, models
 from tensorflow.keras.optimizers import Adam
 from make_env import portfolio_env
-import matplotlib.pyplot as plt
 import time
 import random
 
@@ -117,29 +116,6 @@ class Agent():
                 self.replay()
 
 
-
-    def test(self, num_steps=200):
-        state = self.env.reset()
-        self.env.epsilon = 0  # Disable exploration
-        self.portfolio_history = [self.env.portfolio_value]
-
-        for _ in range(num_steps):
-            action = self.act(state)
-            state, _, done, _, _ = self.env.step(action)
-            self.portfolio_history.append(self.env.portfolio_value)
-            if done:
-                break
-
-        # Plot the balance/portfolio value
-        plt.figure(figsize=(12, 6))
-        plt.plot(self.portfolio_history, label='Portfolio Value')
-        plt.xlabel("Step")
-        plt.ylabel("Portfolio Value")
-        plt.title("Agent Portfolio Performance Over Time")
-        plt.legend()
-        plt.grid()
-        plt.show()
-
     
 stock_tickers = [
     'AAPL',
@@ -161,4 +137,3 @@ agent.learn(num_episodes=100, iterations_per_episode=200)
 
 print("\n\nTesting is started wait for 10sec.....\n\n\n")
 time.sleep(10)
-agent.test()
